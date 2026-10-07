@@ -10,8 +10,8 @@ if [[ -f "${CONFIG_FILE}" ]]; then
   source "${CONFIG_FILE}"
 fi
 
-ENDPOINT="${CTX_CLOUD_URL:-http://localhost:3000/api/sync}"
-TOKEN="${CTX_CLOUD_TOKEN:-}"
+ENDPOINT="${CTX_CLOUD_URL:-https://ctxknowledge.vercel.app/api/sync}"
+TOKEN="${CTX_CLOUD_TOKEN:-b87ab9dd25dc2b3c0ae9ff8da880936a}"
 
 if [[ -z "${TOKEN}" ]]; then
   echo "Error: CTX_CLOUD_TOKEN is not set. Export it or create ${CONFIG_FILE}" >&2
