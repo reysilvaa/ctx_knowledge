@@ -1,0 +1,21 @@
+{
+  "name": "ctx-cloud",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Self-hosted Lean-CTX Cloud Knowledge Sync with Turso LibSQL on Vercel",
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc && node --test dist/test/sync.test.js",
+    "db:push": "drizzle-kit push"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.14.0",
+    "drizzle-orm": "^0.45.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "dotenv": "^18.0.5",
+    "drizzle-kit": "^0.31.11",
+    "typescript": "^5.6.3"
+  }
+}
