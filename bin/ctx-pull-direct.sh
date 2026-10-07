@@ -22,22 +22,31 @@ if [[ -z "${PROJECT_ID}" ]]; then
   exit 1
 fi
 
-TMP_FILE="$(mktemp --suffix=.json)"
+TMP_PAYLOAD="$(mktemp --suffix=.json)"
+TMP_FACTS="$(mktemp --suffix=.json)"
 
 echo "Mengambil knowledge '${PROJECT_ID}' dari ${ENDPOINT}..."
-HTTP_CODE=$(curl -sS -w "%{http_code}" -o "${TMP_FILE}" \
+HTTP_CODE=$(curl -sS -w "%{http_code}" -o "${TMP_PAYLOAD}" \
   -H "Authorization: Bearer ${TOKEN}" \
   "${ENDPOINT}?project=${PROJECT_ID}")
 
 if [[ "${HTTP_CODE}" != "200" ]]; then
   echo "Gagal mengambil knowledge dari Vercel (HTTP ${HTTP_CODE}):" >&2
-  cat "${TMP_FILE}" >&2
-  rm -f "${TMP_FILE}"
+  cat "${TMP_PAYLOAD}" >&2
+  rm -f "${TMP_PAYLOAD}" "${TMP_FACTS}"
   exit 1
 fi
 
-echo "Mengimpor ke lean-ctx lokal..."
-lean-ctx knowledge import "${TMP_FILE}" --merge append
-rm -f "${TMP_FILE}"
+# Ekstrak array facts agar kompatibel dengan 'lean-ctx knowledge import'
+node -e '
+  const fs = require("fs");
+  const data = JSON.parse(fs.readFileSync(process.argv[1], "utf-8"));
+  const facts = Array.isArray(data) ? data : (data.facts || [data]);
+  fs.writeFileSync(process.argv[2], JSON.stringify(facts, null, 2));
+' "${TMP_PAYLOAD}" "${TMP_FACTS}"
+
+echo "Mengimpor fakta ke lean-ctx lokal..."
+lean-ctx knowledge import "${TMP_FACTS}" --merge append
+rm -f "${TMP_PAYLOAD}" "${TMP_FACTS}"
 
 echo "✅ Berhasil! Knowledge '${PROJECT_ID}' sudah aktif di lean-ctx lokal kamu via Vercel Cloud."
